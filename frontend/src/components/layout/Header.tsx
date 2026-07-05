@@ -1,14 +1,31 @@
 import { useSidebarStore } from '../../store/sidebarStore';
 import { useThemeStore } from '../../store/themeStore';
+import { useAuthStore } from '../../store/auth';
+import { authApi } from '../../services/auth';
+import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const toggleSidebar = useSidebarStore((state) => state.toggle);
   const { theme, setTheme } = useThemeStore();
+  const { user, logout, refreshToken } = useAuthStore();
+  const navigate = useNavigate();
 
   const handleThemeToggle = () => {
     if (theme === 'light') setTheme('dark');
     else if (theme === 'dark') setTheme('system');
     else setTheme('light');
+  };
+
+  const handleLogout = async () => {
+    if (refreshToken) {
+      try {
+        await authApi.logout({ refreshToken }, refreshToken);
+      } catch (err) {
+        console.error('Logout error:', err);
+      }
+    }
+    logout();
+    navigate('/login');
   };
 
   return (
@@ -91,13 +108,21 @@ export default function Header() {
             />
           </svg>
         </button>
-        <div className="relative">
-          <button className="flex items-center space-x-2 focus:outline-none">
+
+        {user && (
+          <div className="flex items-center space-x-2">
             <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
-              A
+              {user.username[0].toUpperCase()}
             </div>
-          </button>
-        </div>
+            <span className="text-gray-800 dark:text-white text-sm">{user.username}</span>
+            <button
+              onClick={handleLogout}
+              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+            >
+              Logout
+            </button>
+          </div>
+        )}
       </div>
     </header>
   );

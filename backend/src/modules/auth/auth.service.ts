@@ -1,17 +1,19 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-import { UserRepository } from './user.repository';
-import { UnauthorizedError, NotFoundError } from '../../lib/errors';
-import { LoginInput, RefreshInput, ChangePasswordInput, ResetPasswordInput } from './auth.schema';
+import { FastifyInstance } from 'fastify';
+import { eq, and } from 'drizzle-orm';
+import { config } from '../../config';
 import { db } from '../../db';
 import { refreshTokens, auditLogs, users } from '../../db/schema';
-import { eq, and } from 'drizzle-orm';
-import { FastifyInstance } from 'fastify';
+import { NotFoundError, UnauthorizedError } from '../../lib/errors';
+import { ChangePasswordInput, LoginInput, RefreshInput, ResetPasswordInput } from './auth.schema';
+import { UserRepository } from './user.repository';
+import type { UserPayload } from '../../middleware/jwt.middleware';
 
 export class AuthService {
   constructor(
     private userRepository: UserRepository,
-    private server: FastifyInstance
+    private server: FastifyInstance,
   ) {}
 
   async login(input: LoginInput, ipAddress?: string, userAgent?: string) {
@@ -29,11 +31,8 @@ export class AuthService {
       throw new UnauthorizedError('Invalid credentials');
     }
 
-    // Generate Access Token (JWT)
-    const accessToken = this.server.jwt.sign(
-      { id: user.id, username: user.username, roleId: user.roleId },
-      { expiresIn: '15m' }
-    );
+    const payload: UserPayload = { id: user.id, username: user.username, roleId: user.roleId };
+    const accessToken = this.server.jwt.sign(payload, { expiresIn: config.jwtExpiresIn });
 
     // Generate Refresh Token (Opaque Token)
     const rawRefreshToken = crypto.randomBytes(40).toString('hex');
@@ -79,12 +78,24 @@ export class AuthService {
     }
 
     if (tokenRecord.revoked) {
-      this.logAudit(tokenRecord.userId, 'FAILED_REFRESH', 'Attempt to use revoked token', ipAddress, userAgent);
+      this.logAudit(
+        tokenRecord.userId,
+        'FAILED_REFRESH',
+        'Attempt to use revoked token',
+        ipAddress,
+        userAgent,
+      );
       throw new UnauthorizedError('Token has been revoked');
     }
 
     if (new Date() > new Date(tokenRecord.expiresAt)) {
-      this.logAudit(tokenRecord.userId, 'FAILED_REFRESH', 'Attempt to use expired token', ipAddress, userAgent);
+      this.logAudit(
+        tokenRecord.userId,
+        'FAILED_REFRESH',
+        'Attempt to use expired token',
+        ipAddress,
+        userAgent,
+      );
       throw new UnauthorizedError('Token has expired');
     }
 
@@ -95,21 +106,23 @@ export class AuthService {
     }
 
     // Generate new Access Token
-    const accessToken = this.server.jwt.sign(
-      { id: user.id, username: user.username, roleId: user.roleId },
-      { expiresIn: '15m' }
-    );
+    const payload: UserPayload = { id: user.id, username: user.username, roleId: user.roleId };
+    const accessToken = this.server.jwt.sign(payload, { expiresIn: config.jwtExpiresIn });
 
     // Generate new Refresh Token (Rotation)
     const rawNewRefreshToken = crypto.randomBytes(40).toString('hex');
-    const newRefreshTokenHash = crypto.createHash('sha256').update(rawNewRefreshToken).digest('hex');
+    const newRefreshTokenHash = crypto
+      .createHash('sha256')
+      .update(rawNewRefreshToken)
+      .digest('hex');
 
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
     // Transaction to revoke old token and insert new one
     await db.transaction(async (tx) => {
-      await tx.update(refreshTokens)
+      await tx
+        .update(refreshTokens)
         .set({ revoked: true })
         .where(eq(refreshTokens.id, tokenRecord.id));
 
@@ -131,7 +144,8 @@ export class AuthService {
   async logout(refreshToken: string, userId: string, ipAddress?: string, userAgent?: string) {
     const refreshTokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
 
-    await db.update(refreshTokens)
+    await db
+      .update(refreshTokens)
       .set({ revoked: true })
       .where(and(eq(refreshTokens.token, refreshTokenHash), eq(refreshTokens.userId, userId)));
 
@@ -146,7 +160,12 @@ export class AuthService {
     return user;
   }
 
-  async changePassword(userId: string, input: ChangePasswordInput, ipAddress?: string, userAgent?: string) {
+  async changePassword(
+    userId: string,
+    input: ChangePasswordInput,
+    ipAddress?: string,
+    userAgent?: string,
+  ) {
     const user = await this.userRepository.findById(userId);
 
     if (!user) {
@@ -161,54 +180,110 @@ export class AuthService {
     }
 
     const newPasswordHash = await bcrypt.hash(input.newPassword, 10);
-    await db.update(users).set({ passwordHash: newPasswordHash, updatedAt: new Date() }).where(eq(users.id, userId));
+    await db
+      .update(users)
+      .set({ passwordHash: newPasswordHash, updatedAt: new Date() })
+      .where(eq(users.id, userId));
 
-    this.logAudit(userId, 'CHANGE_PASSWORD_SUCCESS', 'User changed password successfully', ipAddress, userAgent);
+    this.logAudit(
+      userId,
+      'CHANGE_PASSWORD_SUCCESS',
+      'User changed password successfully',
+      ipAddress,
+      userAgent,
+    );
     return { success: true, message: 'Password changed successfully' };
   }
 
-  async resetPassword(adminUserId: string, targetUserId: string, input: ResetPasswordInput, ipAddress?: string, userAgent?: string) {
+  async resetPassword(
+    adminUserId: string,
+    targetUserId: string,
+    input: ResetPasswordInput,
+    ipAddress?: string,
+    userAgent?: string,
+  ) {
     // Basic authorization check (more robust RBAC to be implemented with JWT middleware)
     // For now, assume a preHandler will ensure adminUserId has permission
 
     const user = await this.userRepository.findById(targetUserId);
     if (!user) {
-      this.logAudit(adminUserId, 'RESET_PASSWORD_FAILED', `Attempt to reset non-existent user ${targetUserId}`, ipAddress, userAgent);
+      this.logAudit(
+        adminUserId,
+        'RESET_PASSWORD_FAILED',
+        `Attempt to reset non-existent user ${targetUserId}`,
+        ipAddress,
+        userAgent,
+      );
       throw new NotFoundError('Target User');
     }
 
     const newPasswordHash = await bcrypt.hash(input.newPassword, 10);
-    await db.update(users).set({ passwordHash: newPasswordHash, updatedAt: new Date() }).where(eq(users.id, targetUserId));
+    await db
+      .update(users)
+      .set({ passwordHash: newPasswordHash, updatedAt: new Date() })
+      .where(eq(users.id, targetUserId));
 
-    this.logAudit(adminUserId, 'RESET_PASSWORD_SUCCESS', `Admin ${adminUserId} reset password for user ${targetUserId}`, ipAddress, userAgent);
+    this.logAudit(
+      adminUserId,
+      'RESET_PASSWORD_SUCCESS',
+      `Admin ${adminUserId} reset password for user ${targetUserId}`,
+      ipAddress,
+      userAgent,
+    );
     return { success: true, message: 'Password reset successfully' };
   }
 
-  async revokeAllUserSessions(adminUserId: string, targetUserId: string, ipAddress?: string, userAgent?: string) {
+  async revokeAllUserSessions(
+    adminUserId: string,
+    targetUserId: string,
+    ipAddress?: string,
+    userAgent?: string,
+  ) {
     // Basic authorization check (RBAC middleware handles this in real flow)
 
     const user = await this.userRepository.findById(targetUserId);
     if (!user) {
-      this.logAudit(adminUserId, 'REVOKE_SESSIONS_FAILED', `Attempt to revoke sessions for non-existent user ${targetUserId}`, ipAddress, userAgent);
+      this.logAudit(
+        adminUserId,
+        'REVOKE_SESSIONS_FAILED',
+        `Attempt to revoke sessions for non-existent user ${targetUserId}`,
+        ipAddress,
+        userAgent,
+      );
       throw new NotFoundError('Target User');
     }
 
     // Revoke all refresh tokens for the user
-    await db.update(refreshTokens)
+    await db
+      .update(refreshTokens)
       .set({ revoked: true })
       .where(eq(refreshTokens.userId, targetUserId));
 
-    this.logAudit(adminUserId, 'REVOKE_SESSIONS_SUCCESS', `Admin ${adminUserId} revoked all sessions for user ${targetUserId}`, ipAddress, userAgent);
+    this.logAudit(
+      adminUserId,
+      'REVOKE_SESSIONS_SUCCESS',
+      `Admin ${adminUserId} revoked all sessions for user ${targetUserId}`,
+      ipAddress,
+      userAgent,
+    );
     return { success: true, message: 'All sessions revoked successfully' };
   }
   // Fire and forget audit logging
-  private logAudit(userId: string | undefined, action: string, description: string, ipAddress?: string, userAgent?: string) {
-    db.insert(auditLogs).values({
-      userId: userId || null,
-      action,
-      entity: 'Authentication',
-      ipAddress: ipAddress || 'unknown',
-      userAgent: userAgent || 'unknown',
-    }).catch(console.error);
+  private logAudit(
+    userId: string | undefined,
+    action: string,
+    description: string,
+    ipAddress?: string,
+    userAgent?: string,
+  ) {
+    db.insert(auditLogs)
+      .values({
+        userId: userId || null,
+        action,
+        entity: 'Authentication',
+        ipAddress: ipAddress || 'unknown',
+        userAgent: userAgent || 'unknown',
+      })
+      .catch(console.error);
   }
 }

@@ -1,9 +1,10 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-import { UnauthorizedError, NotFoundError } from '../../lib/errors';
+import { eq, and } from 'drizzle-orm';
+import { config } from '../../config';
 import { db } from '../../db';
 import { refreshTokens, auditLogs, users } from '../../db/schema';
-import { eq, and } from 'drizzle-orm';
+import { NotFoundError, UnauthorizedError } from '../../lib/errors';
 export class AuthService {
     userRepository;
     server;
@@ -22,8 +23,8 @@ export class AuthService {
             this.logAudit(user.id, 'FAILED_LOGIN', 'Invalid password', ipAddress, userAgent);
             throw new UnauthorizedError('Invalid credentials');
         }
-        // Generate Access Token (JWT)
-        const accessToken = this.server.jwt.sign({ id: user.id, username: user.username, roleId: user.roleId }, { expiresIn: '15m' });
+        const payload = { id: user.id, username: user.username, roleId: user.roleId };
+        const accessToken = this.server.jwt.sign(payload, { expiresIn: config.jwtExpiresIn });
         // Generate Refresh Token (Opaque Token)
         const rawRefreshToken = crypto.randomBytes(40).toString('hex');
         const refreshTokenHash = crypto.createHash('sha256').update(rawRefreshToken).digest('hex');
@@ -72,15 +73,20 @@ export class AuthService {
             throw new UnauthorizedError('User not found or inactive');
         }
         // Generate new Access Token
-        const accessToken = this.server.jwt.sign({ id: user.id, username: user.username, roleId: user.roleId }, { expiresIn: '15m' });
+        const payload = { id: user.id, username: user.username, roleId: user.roleId };
+        const accessToken = this.server.jwt.sign(payload, { expiresIn: config.jwtExpiresIn });
         // Generate new Refresh Token (Rotation)
         const rawNewRefreshToken = crypto.randomBytes(40).toString('hex');
-        const newRefreshTokenHash = crypto.createHash('sha256').update(rawNewRefreshToken).digest('hex');
+        const newRefreshTokenHash = crypto
+            .createHash('sha256')
+            .update(rawNewRefreshToken)
+            .digest('hex');
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + 7);
         // Transaction to revoke old token and insert new one
         await db.transaction(async (tx) => {
-            await tx.update(refreshTokens)
+            await tx
+                .update(refreshTokens)
                 .set({ revoked: true })
                 .where(eq(refreshTokens.id, tokenRecord.id));
             await tx.insert(refreshTokens).values({
@@ -97,7 +103,8 @@ export class AuthService {
     }
     async logout(refreshToken, userId, ipAddress, userAgent) {
         const refreshTokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-        await db.update(refreshTokens)
+        await db
+            .update(refreshTokens)
             .set({ revoked: true })
             .where(and(eq(refreshTokens.token, refreshTokenHash), eq(refreshTokens.userId, userId)));
         this.logAudit(userId, 'LOGOUT', 'User logged out', ipAddress, userAgent);
@@ -121,7 +128,10 @@ export class AuthService {
             throw new UnauthorizedError('Invalid old password');
         }
         const newPasswordHash = await bcrypt.hash(input.newPassword, 10);
-        await db.update(users).set({ passwordHash: newPasswordHash, updatedAt: new Date() }).where(eq(users.id, userId));
+        await db
+            .update(users)
+            .set({ passwordHash: newPasswordHash, updatedAt: new Date() })
+            .where(eq(users.id, userId));
         this.logAudit(userId, 'CHANGE_PASSWORD_SUCCESS', 'User changed password successfully', ipAddress, userAgent);
         return { success: true, message: 'Password changed successfully' };
     }
@@ -134,7 +144,10 @@ export class AuthService {
             throw new NotFoundError('Target User');
         }
         const newPasswordHash = await bcrypt.hash(input.newPassword, 10);
-        await db.update(users).set({ passwordHash: newPasswordHash, updatedAt: new Date() }).where(eq(users.id, targetUserId));
+        await db
+            .update(users)
+            .set({ passwordHash: newPasswordHash, updatedAt: new Date() })
+            .where(eq(users.id, targetUserId));
         this.logAudit(adminUserId, 'RESET_PASSWORD_SUCCESS', `Admin ${adminUserId} reset password for user ${targetUserId}`, ipAddress, userAgent);
         return { success: true, message: 'Password reset successfully' };
     }
@@ -146,7 +159,8 @@ export class AuthService {
             throw new NotFoundError('Target User');
         }
         // Revoke all refresh tokens for the user
-        await db.update(refreshTokens)
+        await db
+            .update(refreshTokens)
             .set({ revoked: true })
             .where(eq(refreshTokens.userId, targetUserId));
         this.logAudit(adminUserId, 'REVOKE_SESSIONS_SUCCESS', `Admin ${adminUserId} revoked all sessions for user ${targetUserId}`, ipAddress, userAgent);
@@ -154,12 +168,14 @@ export class AuthService {
     }
     // Fire and forget audit logging
     logAudit(userId, action, description, ipAddress, userAgent) {
-        db.insert(auditLogs).values({
+        db.insert(auditLogs)
+            .values({
             userId: userId || null,
             action,
             entity: 'Authentication',
             ipAddress: ipAddress || 'unknown',
             userAgent: userAgent || 'unknown',
-        }).catch(console.error);
+        })
+            .catch(console.error);
     }
 }

@@ -34,8 +34,6 @@ export const createServer = () => {
   // Register RBAC/PBAC Middleware for authorization
   rbacMiddleware(fastify);
 
-
-
   fastify.get('/api/health', async () => {
     return { status: 'OK' };
   });

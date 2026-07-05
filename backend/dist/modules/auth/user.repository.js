@@ -28,7 +28,7 @@ export class UserRepository {
     }
     async create(userData) {
         const [newUser] = await db.insert(users).values(userData).returning();
-        return newUser;
+        return this.findById(newUser.id);
     }
     async update(id, userData) {
         const [updatedUser] = await db
@@ -36,10 +36,11 @@ export class UserRepository {
             .set({ ...userData, updatedAt: new Date() })
             .where(eq(users.id, id))
             .returning();
-        return updatedUser;
+        return updatedUser ? this.findById(updatedUser.id) : undefined;
     }
     async delete(id) {
-        await db.delete(users).where(eq(users.id, id));
+        const [deletedUser] = await db.delete(users).where(eq(users.id, id)).returning();
+        return deletedUser ? this.findById(deletedUser.id) : undefined;
     }
     async list() {
         return db.query.users.findMany({

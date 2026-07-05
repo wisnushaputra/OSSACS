@@ -7,13 +7,19 @@ export class AuthController {
         const ipAddress = request.ip;
         const userAgent = request.headers['user-agent'];
         const result = await this.authService.login(request.body, ipAddress, userAgent);
-        return reply.status(200).send(result);
+        return reply.status(200).send({
+            success: true,
+            data: result,
+        });
     }
     async refreshToken(request, reply) {
         const ipAddress = request.ip;
         const userAgent = request.headers['user-agent'];
         const result = await this.authService.refreshToken(request.body, ipAddress, userAgent);
-        return reply.status(200).send(result);
+        return reply.status(200).send({
+            success: true,
+            data: result,
+        });
     }
     async logout(request, reply) {
         const ipAddress = request.ip;

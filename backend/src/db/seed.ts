@@ -76,14 +76,9 @@ async function seed() {
 
     // 3. Map Permissions to Roles
     const rolePermissionMap: Record<string, string[]> = {
-      'Admin': Object.keys(insertedPermissions), // Admin gets all permissions
-      'NOC': [
-        'dashboard:view',
-        'customer:read',
-        'onu:read',
-        'onu:reboot',
-      ],
-      'Technician': [
+      Admin: Object.keys(insertedPermissions), // Admin gets all permissions
+      NOC: ['dashboard:view', 'customer:read', 'onu:read', 'onu:reboot'],
+      Technician: [
         'dashboard:view',
         'customer:read',
         'onu:read',

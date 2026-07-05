@@ -1,4 +1,4 @@
-import { FastifyReply, FastifyRequest, HookHandlerDoneFunction, FastifyInstance } from 'fastify';
+import { FastifyReply, FastifyRequest, FastifyInstance } from 'fastify';
 import { UnauthorizedError } from '../lib/errors';
 import { db } from '../db';
 import { users } from '../db/schema';
@@ -8,16 +8,18 @@ export interface UserPayload {
   id: string;
   username: string;
   roleId: string;
-  iat: number;
-  exp: number;
+}
+
+declare module '@fastify/jwt' {
+  interface FastifyJWT {
+    payload: UserPayload;
+    user: UserPayload;
+  }
 }
 
 declare module 'fastify' {
   interface FastifyInstance {
     authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
-  }
-  interface FastifyRequest {
-    user: UserPayload;
   }
 }
 
@@ -36,7 +38,6 @@ export async function jwtMiddleware(server: FastifyInstance) {
       if (!user || !user.isActive) {
         throw new UnauthorizedError('User is inactive or not found');
       }
-
     } catch (err) {
       server.log.error(err);
       throw new UnauthorizedError('Invalid or expired token');

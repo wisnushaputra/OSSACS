@@ -7,25 +7,37 @@ export class UserController {
 
   async listUsers(request: FastifyRequest, reply: FastifyReply) {
     const users = await this.userService.listUsers();
-    return reply.status(200).send(users);
+    return reply.status(200).send({
+      success: true,
+      data: users,
+    });
   }
 
   async createUser(request: FastifyRequest<{ Body: CreateUserInput }>, reply: FastifyReply) {
     const user = await this.userService.createUser(request.body);
-    return reply.status(201).send(user);
+    return reply.status(201).send({
+      success: true,
+      data: user,
+    });
   }
 
   async getUser(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
     const user = await this.userService.getUserById(request.params.id);
-    return reply.status(200).send(user);
+    return reply.status(200).send({
+      success: true,
+      data: user,
+    });
   }
 
   async updateUser(
     request: FastifyRequest<{ Params: { id: string }; Body: UpdateUserInput }>,
-    reply: FastifyReply
+    reply: FastifyReply,
   ) {
     const user = await this.userService.updateUser(request.params.id, request.body);
-    return reply.status(200).send(user);
+    return reply.status(200).send({
+      success: true,
+      data: user,
+    });
   }
 
   async deleteUser(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {

@@ -14,7 +14,10 @@ export async function permissionRoutes(server: FastifyInstance) {
   const permissionService = new PermissionService(permissionRepository);
   const permissionController = new PermissionController(permissionService);
 
-  server.post<{ Body: CreatePermissionInput; Reply: typeof permissionSchemas.permissionResponseSchema }>(
+  server.post<{
+    Body: CreatePermissionInput;
+    Reply: typeof permissionSchemas.permissionResponseSchema;
+  }>(
     '/',
     {
       preHandler: [server.authenticate], // RBAC middleware will be added here later
@@ -23,7 +26,7 @@ export async function permissionRoutes(server: FastifyInstance) {
         response: { 201: permissionSchemas.permissionResponseSchema },
       },
     },
-    permissionController.createPermission.bind(permissionController)
+    permissionController.createPermission.bind(permissionController),
   );
 
   server.get<{ Params: { id: string }; Reply: typeof permissionSchemas.permissionResponseSchema }>(
@@ -34,10 +37,14 @@ export async function permissionRoutes(server: FastifyInstance) {
         response: { 200: permissionSchemas.permissionResponseSchema },
       },
     },
-    permissionController.getPermission.bind(permissionController)
+    permissionController.getPermission.bind(permissionController),
   );
 
-  server.put<{ Params: { id: string }; Body: UpdatePermissionInput; Reply: typeof permissionSchemas.permissionResponseSchema }>(
+  server.put<{
+    Params: { id: string };
+    Body: UpdatePermissionInput;
+    Reply: typeof permissionSchemas.permissionResponseSchema;
+  }>(
     '/:id',
     {
       preHandler: [server.authenticate], // RBAC middleware will be added here later
@@ -46,7 +53,7 @@ export async function permissionRoutes(server: FastifyInstance) {
         response: { 200: permissionSchemas.permissionResponseSchema },
       },
     },
-    permissionController.updatePermission.bind(permissionController)
+    permissionController.updatePermission.bind(permissionController),
   );
 
   server.delete<{ Params: { id: string }; Reply: {} }>(
@@ -57,7 +64,7 @@ export async function permissionRoutes(server: FastifyInstance) {
         response: { 204: {} },
       },
     },
-    permissionController.deletePermission.bind(permissionController)
+    permissionController.deletePermission.bind(permissionController),
   );
 
   server.get<{ Reply: typeof permissionSchemas.permissionsResponseSchema }>(
@@ -68,7 +75,7 @@ export async function permissionRoutes(server: FastifyInstance) {
         response: { 200: permissionSchemas.permissionsResponseSchema },
       },
     },
-    permissionController.listPermissions.bind(permissionController)
+    permissionController.listPermissions.bind(permissionController),
   );
 
   server.post<{ Body: { roleId: string; permissionId: string }; Reply: { message: string } }>(
@@ -87,7 +94,7 @@ export async function permissionRoutes(server: FastifyInstance) {
         },
       },
     },
-    permissionController.assignPermissionToRole.bind(permissionController)
+    permissionController.assignPermissionToRole.bind(permissionController),
   );
 
   server.delete<{ Body: { roleId: string; permissionId: string }; Reply: { message: string } }>(
@@ -106,6 +113,6 @@ export async function permissionRoutes(server: FastifyInstance) {
         },
       },
     },
-    permissionController.removePermissionFromRole.bind(permissionController)
+    permissionController.removePermissionFromRole.bind(permissionController),
   );
 }

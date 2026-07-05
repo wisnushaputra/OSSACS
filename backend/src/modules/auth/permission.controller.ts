@@ -5,7 +5,10 @@ import { CreatePermissionInput, UpdatePermissionInput } from './permission.schem
 export class PermissionController {
   constructor(private permissionService: PermissionService) {}
 
-  async createPermission(request: FastifyRequest<{ Body: CreatePermissionInput }>, reply: FastifyReply) {
+  async createPermission(
+    request: FastifyRequest<{ Body: CreatePermissionInput }>,
+    reply: FastifyReply,
+  ) {
     const permission = await this.permissionService.createPermission(request.body);
     return reply.status(201).send(permission);
   }
@@ -17,9 +20,12 @@ export class PermissionController {
 
   async updatePermission(
     request: FastifyRequest<{ Params: { id: string }; Body: UpdatePermissionInput }>,
-    reply: FastifyReply
+    reply: FastifyReply,
   ) {
-    const permission = await this.permissionService.updatePermission(request.params.id, request.body);
+    const permission = await this.permissionService.updatePermission(
+      request.params.id,
+      request.body,
+    );
     if (!permission) {
       return reply.status(404).send({ message: 'Permission not found' });
     }
@@ -36,19 +42,28 @@ export class PermissionController {
     return reply.status(200).send(permissions);
   }
 
-  async assignPermissionToRole(request: FastifyRequest<{ Body: { roleId: string; permissionId: string } }>, reply: FastifyReply) {
+  async assignPermissionToRole(
+    request: FastifyRequest<{ Body: { roleId: string; permissionId: string } }>,
+    reply: FastifyReply,
+  ) {
     const { roleId, permissionId } = request.body;
     await this.permissionService.assignPermissionToRole(roleId, permissionId);
     return reply.status(200).send({ message: 'Permission assigned to role' });
   }
 
-  async removePermissionFromRole(request: FastifyRequest<{ Body: { roleId: string; permissionId: string } }>, reply: FastifyReply) {
+  async removePermissionFromRole(
+    request: FastifyRequest<{ Body: { roleId: string; permissionId: string } }>,
+    reply: FastifyReply,
+  ) {
     const { roleId, permissionId } = request.body;
     await this.permissionService.removePermissionFromRole(roleId, permissionId);
     return reply.status(200).send({ message: 'Permission removed from role' });
   }
 
-  async getRolePermissions(request: FastifyRequest<{ Params: { roleId: string } }>, reply: FastifyReply) {
+  async getRolePermissions(
+    request: FastifyRequest<{ Params: { roleId: string } }>,
+    reply: FastifyReply,
+  ) {
     const permissions = await this.permissionService.getRolePermissions(request.params.roleId);
     return reply.status(200).send(permissions);
   }

@@ -12,41 +12,43 @@ export class UserService {
         }
         return user;
     }
-    async getUserByUsername(username) {
-        const user = await this.userRepository.findByUsername(username);
-        if (!user) {
-            throw new NotFoundError('User');
-        }
-        return user;
-    }
-    async getUserByEmail(email) {
-        const user = await this.userRepository.findByEmail(email);
-        if (!user) {
-            throw new NotFoundError('User');
-        }
-        return user;
-    }
     async listUsers() {
         return this.userRepository.list();
     }
     async createUser(userData) {
-        // Hash password before saving
-        const passwordHash = await bcrypt.hash(userData.passwordHash, 10);
-        return this.userRepository.create({
-            ...userData,
+        const passwordHash = await bcrypt.hash(userData.password, 10);
+        const newUser = {
+            username: userData.username,
+            email: userData.email,
+            fullname: userData.fullname,
+            roleId: userData.roleId,
             passwordHash,
-        });
+            isActive: true,
+        };
+        return this.userRepository.create(newUser);
     }
     async updateUser(id, userData) {
-        // Hash password if provided
-        let updateData = userData;
-        if (userData.passwordHash) {
-            const passwordHash = await bcrypt.hash(userData.passwordHash, 10);
-            updateData = { ...userData, passwordHash };
+        const updateData = {
+            username: userData.username,
+            email: userData.email,
+            fullname: userData.fullname,
+            roleId: userData.roleId,
+            isActive: userData.isActive,
+        };
+        if (userData.password) {
+            updateData.passwordHash = await bcrypt.hash(userData.password, 10);
         }
-        return this.userRepository.update(id, updateData);
+        const updatedUser = await this.userRepository.update(id, updateData);
+        if (!updatedUser) {
+            throw new NotFoundError('User');
+        }
+        return updatedUser;
     }
     async deleteUser(id) {
-        return this.userRepository.delete(id);
+        const deletedUser = await this.userRepository.delete(id);
+        if (!deletedUser) {
+            throw new NotFoundError('User');
+        }
+        return deletedUser;
     }
 }

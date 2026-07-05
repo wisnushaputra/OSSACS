@@ -9,7 +9,7 @@ const userCore = {
 
 const createUserSchema = z.object({
   ...userCore,
-  passwordHash: z.string().min(6),
+  password: z.string().min(6),
 });
 
 const updateUserSchema = z.object({
@@ -17,7 +17,7 @@ const updateUserSchema = z.object({
   email: z.string().email().optional(),
   fullname: z.string().min(1).optional(),
   roleId: z.string().uuid().optional(),
-  passwordHash: z.string().min(6).optional(),
+  password: z.string().min(6).optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -30,6 +30,15 @@ const userResponseSchema = z.object({
   isActive: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
+  role: z
+    .object({
+      id: z.string().uuid(),
+      name: z.string(),
+      description: z.string().nullable().optional(),
+      createdAt: z.date(),
+      updatedAt: z.date(),
+    })
+    .optional(),
 });
 
 const usersResponseSchema = z.array(userResponseSchema);

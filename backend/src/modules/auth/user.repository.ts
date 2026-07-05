@@ -1,7 +1,7 @@
 import { db } from '../../db';
-import { users, roles } from '../../db/schema';
+import { users } from '../../db/schema';
 import { eq } from 'drizzle-orm';
-import { NewUser, User } from './auth.types';
+import { NewUser } from './auth.types';
 
 export class UserRepository {
   async findById(id: string) {
@@ -33,7 +33,7 @@ export class UserRepository {
 
   async create(userData: NewUser) {
     const [newUser] = await db.insert(users).values(userData).returning();
-    return newUser;
+    return this.findById(newUser.id);
   }
 
   async update(id: string, userData: Partial<NewUser>) {
@@ -42,11 +42,12 @@ export class UserRepository {
       .set({ ...userData, updatedAt: new Date() })
       .where(eq(users.id, id))
       .returning();
-    return updatedUser;
+    return updatedUser ? this.findById(updatedUser.id) : undefined;
   }
 
   async delete(id: string) {
-    await db.delete(users).where(eq(users.id, id));
+    const [deletedUser] = await db.delete(users).where(eq(users.id, id)).returning();
+    return deletedUser ? this.findById(deletedUser.id) : undefined;
   }
 
   async list() {

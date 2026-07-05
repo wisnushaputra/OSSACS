@@ -1,7 +1,7 @@
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { UserRepository } from './user.repository';
-import { userSchemas, } from './user.schema';
+import { userSchemas } from './user.schema';
 export async function userRoutes(server) {
     const userRepository = new UserRepository();
     const userService = new UserService(userRepository);

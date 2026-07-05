@@ -24,7 +24,7 @@ export async function authRoutes(server: FastifyInstance) {
         response: { 200: authSchemas.loginResponseSchema },
       },
     },
-    authController.login.bind(authController)
+    authController.login.bind(authController),
   );
 
   server.post<{ Body: RefreshInput; Reply: typeof authSchemas.refreshResponseSchema }>(
@@ -35,7 +35,7 @@ export async function authRoutes(server: FastifyInstance) {
         response: { 200: authSchemas.refreshResponseSchema },
       },
     },
-    authController.refreshToken.bind(authController)
+    authController.refreshToken.bind(authController),
   );
 
   server.post<{ Body: RefreshInput }>(
@@ -45,7 +45,7 @@ export async function authRoutes(server: FastifyInstance) {
         body: authSchemas.refreshSchema,
       },
     },
-    authController.logout.bind(authController)
+    authController.logout.bind(authController),
   );
 
   server.get<{ Reply: typeof authSchemas.userMeResponseSchema }>(
@@ -56,7 +56,7 @@ export async function authRoutes(server: FastifyInstance) {
         response: { 200: authSchemas.userMeResponseSchema },
       },
     },
-    authController.getMe.bind(authController)
+    authController.getMe.bind(authController),
   );
 
   server.post<{ Body: ChangePasswordInput; Reply: { success: boolean; message: string } }>(
@@ -68,10 +68,14 @@ export async function authRoutes(server: FastifyInstance) {
         response: { 200: z.object({ success: z.boolean(), message: z.string() }) },
       },
     },
-    authController.changePassword.bind(authController)
+    authController.changePassword.bind(authController),
   );
 
-  server.post<{ Params: { id: string }; Body: ResetPasswordInput; Reply: { success: boolean; message: string } }>(
+  server.post<{
+    Params: { id: string };
+    Body: ResetPasswordInput;
+    Reply: { success: boolean; message: string };
+  }>(
     '/users/:id/reset-password',
     {
       preHandler: server.authenticate,
@@ -80,7 +84,7 @@ export async function authRoutes(server: FastifyInstance) {
         response: { 200: z.object({ success: z.boolean(), message: z.string() }) },
       },
     },
-    authController.resetPassword.bind(authController)
+    authController.resetPassword.bind(authController),
   );
 
   server.post<{ Params: { id: string }; Reply: { success: boolean; message: string } }>(
@@ -91,6 +95,6 @@ export async function authRoutes(server: FastifyInstance) {
         response: { 200: z.object({ success: z.boolean(), message: z.string() }) },
       },
     },
-    authController.revokeUserSessions.bind(authController)
+    authController.revokeUserSessions.bind(authController),
   );
 }

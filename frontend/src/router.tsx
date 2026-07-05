@@ -3,6 +3,8 @@ import BaseLayout from './components/layout/BaseLayout';
 import ErrorPage from './ErrorPage';
 import HomePage from './pages/HomePage';
 import DashboardPage from './pages/DashboardPage';
+import RequireAuth from './components/auth/RequireAuth';
+import LoginPage from './pages/LoginPage';
 
 const router = createBrowserRouter([
   {
@@ -12,8 +14,18 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       {
-        path: 'dashboard',
-        element: <DashboardPage />,
+        element: <RequireAuth />,
+        children: [
+          {
+            path: 'dashboard',
+            element: <DashboardPage />,
+          },
+          // Add other protected routes here
+        ],
+      },
+      {
+        path: 'login',
+        element: <LoginPage />,
       },
       // Add other routes here
     ],

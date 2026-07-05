@@ -17,7 +17,7 @@ export class RoleController {
 
   async updateRole(
     request: FastifyRequest<{ Params: { id: string }; Body: UpdateRoleInput }>,
-    reply: FastifyReply
+    reply: FastifyReply,
   ) {
     const role = await this.roleService.updateRole(request.params.id, request.body);
     return reply.status(200).send(role);

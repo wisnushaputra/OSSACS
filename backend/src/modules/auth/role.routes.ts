@@ -19,7 +19,7 @@ export async function roleRoutes(server: FastifyInstance) {
         response: { 201: roleSchemas.roleResponseSchema },
       },
     },
-    roleController.createRole.bind(roleController)
+    roleController.createRole.bind(roleController),
   );
 
   server.get<{ Params: { id: string }; Reply: typeof roleSchemas.roleResponseSchema }>(
@@ -30,10 +30,14 @@ export async function roleRoutes(server: FastifyInstance) {
         response: { 200: roleSchemas.roleResponseSchema },
       },
     },
-    roleController.getRole.bind(roleController)
+    roleController.getRole.bind(roleController),
   );
 
-  server.put<{ Params: { id: string }; Body: UpdateRoleInput; Reply: typeof roleSchemas.roleResponseSchema }>(
+  server.put<{
+    Params: { id: string };
+    Body: UpdateRoleInput;
+    Reply: typeof roleSchemas.roleResponseSchema;
+  }>(
     '/:id',
     {
       preHandler: [server.authenticate], // RBAC middleware will be added here later
@@ -42,7 +46,7 @@ export async function roleRoutes(server: FastifyInstance) {
         response: { 200: roleSchemas.roleResponseSchema },
       },
     },
-    roleController.updateRole.bind(roleController)
+    roleController.updateRole.bind(roleController),
   );
 
   server.delete<{ Params: { id: string }; Reply: { success: boolean; message: string } }>(
@@ -53,7 +57,7 @@ export async function roleRoutes(server: FastifyInstance) {
         response: { 204: z.object({ success: z.boolean(), message: z.string() }) },
       },
     },
-    roleController.deleteRole.bind(roleController)
+    roleController.deleteRole.bind(roleController),
   );
 
   server.get<{ Reply: typeof roleSchemas.rolesResponseSchema }>(
@@ -64,6 +68,6 @@ export async function roleRoutes(server: FastifyInstance) {
         response: { 200: roleSchemas.rolesResponseSchema },
       },
     },
-    roleController.listRoles.bind(roleController)
+    roleController.listRoles.bind(roleController),
   );
 }

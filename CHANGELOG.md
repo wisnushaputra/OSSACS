@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2026-07-05
 
 ### Added
+
 - **Monorepo setup**: Initialized monorepo using npm workspaces (`backend`, `frontend`, `packages/*`, and `worker`).
 - **Git & Tooling**: Configured `.gitignore`, `tsconfig.json` files, ESLint, and Prettier.
 - **Backend Bootstrap**: Created Fastify app server with health endpoint (`/api/health`), global error handler (with subclassed standard errors like `ValidationError`, `NotFoundError`), and TS validation.

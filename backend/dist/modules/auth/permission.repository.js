@@ -17,11 +17,18 @@ export class PermissionRepository {
         return newPermission;
     }
     async update(id, permissionData) {
-        const [updatedPermission] = await db.update(permissions).set(permissionData).where(eq(permissions.id, id)).returning();
+        const [updatedPermission] = await db
+            .update(permissions)
+            .set(permissionData)
+            .where(eq(permissions.id, id))
+            .returning();
         return updatedPermission;
     }
     async delete(id) {
-        const [deletedPermission] = await db.delete(permissions).where(eq(permissions.id, id)).returning();
+        const [deletedPermission] = await db
+            .delete(permissions)
+            .where(eq(permissions.id, id))
+            .returning();
         return deletedPermission;
     }
     async list() {
@@ -31,7 +38,9 @@ export class PermissionRepository {
         await db.insert(rolePermissions).values({ roleId, permissionId });
     }
     async removePermissionFromRole(roleId, permissionId) {
-        await db.delete(rolePermissions).where(and(eq(rolePermissions.roleId, roleId), eq(rolePermissions.permissionId, permissionId)));
+        await db
+            .delete(rolePermissions)
+            .where(and(eq(rolePermissions.roleId, roleId), eq(rolePermissions.permissionId, permissionId)));
     }
     async getRolePermissions(roleId) {
         return db.query.rolePermissions.findMany({

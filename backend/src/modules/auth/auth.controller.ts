@@ -7,18 +7,24 @@ export class AuthController {
 
   async login(request: FastifyRequest<{ Body: LoginInput }>, reply: FastifyReply) {
     const ipAddress = request.ip;
-    const userAgent = request.headers['user-agent'];
+    const userAgent = request.headers['user-agent'] as string | undefined;
 
     const result = await this.authService.login(request.body, ipAddress, userAgent);
-    return reply.status(200).send(result);
+    return reply.status(200).send({
+      success: true,
+      data: result,
+    });
   }
 
   async refreshToken(request: FastifyRequest<{ Body: RefreshInput }>, reply: FastifyReply) {
     const ipAddress = request.ip;
-    const userAgent = request.headers['user-agent'];
+    const userAgent = request.headers['user-agent'] as string | undefined;
 
     const result = await this.authService.refreshToken(request.body, ipAddress, userAgent);
-    return reply.status(200).send(result);
+    return reply.status(200).send({
+      success: true,
+      data: result,
+    });
   }
 
   async logout(request: FastifyRequest<{ Body: RefreshInput }>, reply: FastifyReply) {
@@ -45,7 +51,10 @@ export class AuthController {
     return reply.status(200).send(user);
   }
 
-  async changePassword(request: FastifyRequest<{ Body: ChangePasswordInput }>, reply: FastifyReply) {
+  async changePassword(
+    request: FastifyRequest<{ Body: ChangePasswordInput }>,
+    reply: FastifyReply,
+  ) {
     const userId = (request.user as any)?.id;
     const ipAddress = request.ip;
     const userAgent = request.headers['user-agent'];
@@ -58,7 +67,10 @@ export class AuthController {
     return reply.status(200).send({ success: true, message: 'Password changed successfully' });
   }
 
-  async resetPassword(request: FastifyRequest<{ Params: { id: string }; Body: ResetPasswordInput }>, reply: FastifyReply) {
+  async resetPassword(
+    request: FastifyRequest<{ Params: { id: string }; Body: ResetPasswordInput }>,
+    reply: FastifyReply,
+  ) {
     const adminUserId = (request.user as any)?.id; // Requires JWT middleware
     const targetUserId = request.params.id;
     const ipAddress = request.ip;
@@ -68,11 +80,20 @@ export class AuthController {
       return reply.status(401).send({ message: 'Unauthorized' });
     }
 
-    await this.authService.resetPassword(adminUserId, targetUserId, request.body, ipAddress, userAgent);
+    await this.authService.resetPassword(
+      adminUserId,
+      targetUserId,
+      request.body,
+      ipAddress,
+      userAgent,
+    );
     return reply.status(200).send({ success: true, message: 'Password reset successfully' });
   }
 
-  async revokeUserSessions(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+  async revokeUserSessions(
+    request: FastifyRequest<{ Params: { id: string } }>,
+    reply: FastifyReply,
+  ) {
     const adminUserId = (request.user as any)?.id;
     const targetUserId = request.params.id;
     const ipAddress = request.ip;

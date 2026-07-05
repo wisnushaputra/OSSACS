@@ -22,12 +22,19 @@ export class PermissionRepository {
   }
 
   async update(id: string, permissionData: Partial<NewPermission>) {
-    const [updatedPermission] = await db.update(permissions).set(permissionData).where(eq(permissions.id, id)).returning();
+    const [updatedPermission] = await db
+      .update(permissions)
+      .set(permissionData)
+      .where(eq(permissions.id, id))
+      .returning();
     return updatedPermission;
   }
 
   async delete(id: string) {
-    const [deletedPermission] = await db.delete(permissions).where(eq(permissions.id, id)).returning();
+    const [deletedPermission] = await db
+      .delete(permissions)
+      .where(eq(permissions.id, id))
+      .returning();
     return deletedPermission;
   }
 
@@ -40,7 +47,11 @@ export class PermissionRepository {
   }
 
   async removePermissionFromRole(roleId: string, permissionId: string) {
-    await db.delete(rolePermissions).where(and(eq(rolePermissions.roleId, roleId), eq(rolePermissions.permissionId, permissionId)));
+    await db
+      .delete(rolePermissions)
+      .where(
+        and(eq(rolePermissions.roleId, roleId), eq(rolePermissions.permissionId, permissionId)),
+      );
   }
 
   async getRolePermissions(roleId: string) {
