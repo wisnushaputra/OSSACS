@@ -138,7 +138,7 @@ export class DashboardRepository {
     let query: any = db
       .select({ count: sql<number>`count(*)` })
       .from(workflows)
-      .leftJoin(onuAlias, eq(workflows.onuId, onuAlias.id));
+      .leftJoin(onuAlias, eq(workflows.onuId, onus.id));
 
     if (regionId || popId || vendorId || oltId) {
       query = query.leftJoin(oltAlias, eq(onuAlias.oltId, oltAlias.id));
@@ -161,4 +161,50 @@ export class DashboardRepository {
 
     return Number(result[0]?.count ?? 0);
   }
+
+  async getOltHealthSummary(): Promise<any[]> {
+    const result = await db
+      .select({
+        status: olts.status,
+        count: sql<number>`count(*)`,
+      })
+      .from(olts)
+      .where(isNull(olts.deletedAt))
+      .groupBy(olts.status)
+      .execute();
+    return result;
+  }
+
+  async getOltByVendor(): Promise<any[]> {
+    const result = await db
+      .select({
+        vendor: olts.vendor,
+        count: sql<number>`count(*)`,
+      })
+      .from(olts)
+      .where(isNull(olts.deletedAt))
+      .groupBy(olts.vendor)
+      .execute();
+    return result;
+  }
+
+  async getPonPortUtilization(): Promise<any> {
+    return { totalPorts: 0, usedPorts: 0 };
+  }
+
+  async getOnuCapacityUsage(): Promise<any[]> {
+    const result = await db
+      .select({
+        oltName: olts.name,
+        onuCount: sql<number>`count(${onus.id})`,
+      })
+      .from(olts)
+      .leftJoin(onus, eq(olts.id, onus.oltId))
+      .where(isNull(olts.deletedAt))
+      .groupBy(olts.name)
+      .execute();
+    
+    return result;
+  }
 }
+

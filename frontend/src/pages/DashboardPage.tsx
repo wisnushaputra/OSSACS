@@ -1,4 +1,3 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { dashboardApi } from '../services/dashboard';
 import { useAuthStore } from '../store/auth';
@@ -17,7 +16,7 @@ const ProgressBar = ({ label, value, max, colorClass }: { label: string, value: 
       <span>{value} ({max > 0 ? Math.round((value / max) * 100) : 0}%)</span>
     </div>
     <div className="w-full bg-gray-200 rounded h-2 dark:bg-gray-700">
-      <div className={`h-2 rounded ${colorClass}`} style={{ width: \`\${max > 0 ? (value / max) * 100 : 0}%\` }}></div>
+      <div className={`h-2 rounded ${colorClass}`} style={{ width: `${max > 0 ? (value / max) * 100 : 0}%` }}></div>
     </div>
   </div>
 );
@@ -50,7 +49,23 @@ export default function DashboardPage() {
     enabled: !!accessToken,
   });
 
-  if (!summary) return <div className="p-4">Loading dashboard...</div>;
+  if (!summary) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto space-y-6 animate-pulse">
+        <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="p-4 bg-gray-200 dark:bg-gray-700 rounded h-24"></div>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="p-4 bg-gray-200 dark:bg-gray-700 rounded h-48"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   const totalOptical = opticalDist ? (opticalDist.normal + opticalDist.warning + opticalDist.critical) : 0;
   const totalVendorOnus = vendorData ? vendorData.reduce((acc: number, curr: any) => acc + curr.count, 0) : 0;
@@ -131,7 +146,7 @@ export default function DashboardPage() {
                   <tr key={alarm.id} className="border-b dark:border-gray-700">
                     <td className="px-4 py-2">{new Date(alarm.createdAt).toLocaleString()}</td>
                     <td className="px-4 py-2">
-                      <span className={\`px-2 py-1 text-xs rounded \${alarm.severity === 'CRITICAL' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}\`}>
+                      <span className={`px-2 py-1 text-xs rounded ${alarm.severity === 'CRITICAL' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
                         {alarm.severity}
                       </span>
                     </td>

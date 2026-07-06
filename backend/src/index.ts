@@ -1,4 +1,4 @@
-import { createServer } from './server';
+import { createServer, startSocketIO } from './server';
 import { config } from './config';
 
 const server = createServer();
@@ -6,6 +6,7 @@ const server = createServer();
 const start = async () => {
   try {
     await server.listen({ port: config.port, host: '0.0.0.0' });
+    await startSocketIO(server.server, server);
     console.log(`Server listening on port ${config.port}`);
   } catch (err) {
     server.log.error(err);

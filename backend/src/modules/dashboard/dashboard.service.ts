@@ -9,8 +9,8 @@ type DashboardFilterParams = z.infer<typeof dashboardSchemas.dashboardFilterQuer
 export class DashboardService {
   constructor(private dashboardRepository: DashboardRepository) {}
 
-  async getDashboardSummary(filters: DashboardFilterParams) {
-    const cacheKey = `dashboard:summary:${JSON.stringify(filters)}`; // Fix template literal here
+  async getDashboardSummary(filters: DashboardFilterParams, userPermissions: string[]) {
+    const cacheKey = `dashboard:summary:${JSON.stringify(filters)}:${JSON.stringify(userPermissions)}`;
     return getOrSetCache(cacheKey, config.dashboardSummaryCacheTtl, async () => {
       const [
         totalCustomers,
@@ -19,6 +19,10 @@ export class DashboardService {
         onuStatusCounts,
         activeAlarms,
         runningWorkflows,
+        oltHealthSummary,
+        oltByVendor,
+        ponPortUtilization,
+        onuCapacityUsage,
       ] = await Promise.all([
         this.dashboardRepository.getTotalCustomers(),
         this.dashboardRepository.getTotalOlts(),
@@ -26,7 +30,16 @@ export class DashboardService {
         this.dashboardRepository.getLatestOnuStatusCounts(filters),
         this.dashboardRepository.getActiveAlarmCount(filters),
         this.dashboardRepository.getRunningWorkflowCount(filters),
+        this.dashboardRepository.getOltHealthSummary(),
+        this.dashboardRepository.getOltByVendor(),
+        this.dashboardRepository.getPonPortUtilization(),
+        this.dashboardRepository.getOnuCapacityUsage(),
       ]);
+
+      const canViewOltHealthSummary = userPermissions.includes('dashboard:widget:olt-health');
+      const canViewOltByVendor = userPermissions.includes('dashboard:widget:olt-vendor');
+      const canViewPonPortUtilization = userPermissions.includes('dashboard:widget:pon-utilization');
+      const canViewOnuCapacityUsage = userPermissions.includes('dashboard:widget:onu-capacity');
 
       return {
         totalCustomers,
@@ -38,6 +51,16 @@ export class DashboardService {
         dyingGaspOnus: onuStatusCounts.DYING_GASP,
         activeAlarms,
         runningWorkflows,
+        oltHealthSummary: canViewOltHealthSummary ? oltHealthSummary : undefined,
+        oltByVendor: canViewOltByVendor ? oltByVendor : undefined,
+        ponPortUtilization: canViewPonPortUtilization ? ponPortUtilization : undefined,
+        onuCapacityUsage: canViewOnuCapacityUsage ? onuCapacityUsage : undefined,
+        permissions: {
+          canViewOltHealthSummary,
+          canViewOltByVendor,
+          canViewPonPortUtilization,
+          canViewOnuCapacityUsage,
+        },
       };
     });
   }

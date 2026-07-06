@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+dotenv.config({ path: path.resolve(process.cwd(), '../.env') });
 export const config = {
     port: parseInt(process.env.PORT || '3000', 10),
     nodeEnv: process.env.NODE_ENV || 'development',
@@ -7,4 +8,7 @@ export const config = {
     redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
     jwtSecret: process.env.JWT_SECRET || 'super-secret-key-change-in-production',
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '15m',
+    deviceParametersRetentionDays: parseInt(process.env.DEVICE_PARAMETERS_RETENTION_DAYS || '30', 10),
+    opticalHistoryRetentionDays: parseInt(process.env.OPTICAL_HISTORY_RETENTION_DAYS || '90', 10),
+    dashboardSummaryCacheTtl: parseInt(process.env.DASHBOARD_SUMMARY_CACHE_TTL || '60', 10),
 };

@@ -9,7 +9,8 @@ export class DashboardController {
   constructor(private dashboardService: DashboardService) {}
 
   async getDashboardSummary(request: FastifyRequest<{ Querystring: DashboardFilterParams }>, reply: FastifyReply) {
-    const summary = await this.dashboardService.getDashboardSummary(request.query);
-    return reply.send({ success: true, data: summary });
+    const userPermissions = (request.user as any)?.permissions || [];
+    const summary = await this.dashboardService.getDashboardSummary(request.query, userPermissions);
+    return reply.send({ success: true, ...summary });
   }
 }

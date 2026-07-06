@@ -27,7 +27,17 @@ export const dashboardSummaryResponseSchema = z.object({
     dyingGaspOnus: z.number().int().min(0),
     activeAlarms: z.number().int().min(0),
     runningWorkflows: z.number().int().min(0),
+    oltHealthSummary: z.array(z.object({ status: z.string(), count: z.number() })).optional(),
+    oltByVendor: z.array(z.object({ vendor: z.string(), count: z.number() })).optional(),
+    ponPortUtilization: z.object({ totalPorts: z.number(), usedPorts: z.number() }).optional(),
+    onuCapacityUsage: z.array(z.object({ oltName: z.string(), onuCount: z.number() })).optional(),
   }),
+  permissions: z.object({
+    canViewOltHealthSummary: z.boolean().optional(),
+    canViewOltByVendor: z.boolean().optional(),
+    canViewPonPortUtilization: z.boolean().optional(),
+    canViewOnuCapacityUsage: z.boolean().optional(),
+  }).optional()
 });
 
 export const dashboardSchemas = {

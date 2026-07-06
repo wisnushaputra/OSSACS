@@ -18,7 +18,26 @@ import { vendorRoutes } from './modules/vendor/vendor.routes';
 import { profileRoutes } from './modules/profile/profile.routes';
 import { regionRoutes } from './modules/region/region.routes';
 import { popRoutes } from './modules/pop/pop.routes';
+import { deviceStatusRoutes } from './modules/device-status/device-status.routes';
+import { deviceParameterRoutes } from './modules/device-parameters/device-parameters.routes';
+import { alarmRoutes } from './modules/alarms/alarms.routes';
+import { eventRoutes } from './modules/events/events.routes';
+import { workflowRoutes } from './modules/workflows/workflows.routes';
+import { opticalHistoryRoutes } from './modules/optical-history/optical-history.routes';
+import { notificationRoutes } from './modules/notifications/notifications.routes';
+import { jobRoutes } from './modules/jobs/jobs.routes'; // Import jobs route
+import { auditLogRoutes } from './modules/audit-logs/audit-logs.routes'; // Import audit logs route
+import { dashboardRoutes } from "./modules/dashboard/dashboard.routes";
+import { customerStatsRoutes } from "./modules/dashboard/customer-stats.routes";
+import { onuStatsRoutes } from "./modules/dashboard/onu-stats.routes";
+import { oltStatsRoutes } from "./modules/dashboard/olt-stats.routes";
+import { alarmStatsRoutes } from "./modules/dashboard/alarm-stats.routes";
+import { workflowStatsRoutes } from "./modules/dashboard/workflow-stats.routes";
+import { systemMetricsRoutes } from "./modules/dashboard/system-metrics.routes";
 import { serializerCompiler, validatorCompiler } from '@fastify/type-provider-zod';
+import { Server as SocketIOServer } from 'socket.io';
+import { createAdapter } from '@socket.io/redis-adapter';
+import { createClient } from 'redis';
 export const createServer = () => {
     const fastify = Fastify({
         loggerInstance: logger,
@@ -51,10 +70,120 @@ export const createServer = () => {
     fastify.register(popRoutes, { prefix: '/api/v1/pops' });
     fastify.register(onuRoutes, { prefix: '/api/v1/onus' });
     fastify.register(vendorRoutes, { prefix: '/api/v1/vendors' });
-    fastify.post('/api/v1/jobs', async (request, reply) => {
+    fastify.register(deviceStatusRoutes, { prefix: '/api/v1/device-status' });
+    fastify.register(deviceParameterRoutes, { prefix: '/api/v1/device-parameters' });
+    fastify.register(alarmRoutes, { prefix: '/api/v1/alarms' });
+    fastify.register(eventRoutes, { prefix: '/api/v1/events' });
+    fastify.register(workflowRoutes, { prefix: '/api/v1/workflows' });
+    fastify.register(opticalHistoryRoutes, { prefix: '/api/v1/optical-history' });
+    fastify.register(systemMetricsRoutes, { prefix: "/api/v1/dashboard/system-metrics" });
+    fastify.register(workflowStatsRoutes, { prefix: "/api/v1/dashboard/workflows" });
+    fastify.register(alarmStatsRoutes, { prefix: "/api/v1/dashboard/alarms" });
+    fastify.register(oltStatsRoutes, { prefix: "/api/v1/dashboard/olts" });
+    fastify.register(onuStatsRoutes, { prefix: "/api/v1/dashboard/onus" });
+    fastify.register(customerStatsRoutes, { prefix: "/api/v1/dashboard/customers" });
+    fastify.register(dashboardRoutes, { prefix: "/api/v1/dashboard" });
+    fastify.register(notificationRoutes, { prefix: '/api/v1/notifications' });
+    fastify.register(auditLogRoutes, { prefix: '/api/v1/audit-logs' }); // Register audit logs route
+    // Jobs API handles both GET history and POST manual add
+    fastify.register(jobRoutes, { prefix: '/api/v1/jobs' });
+    // Legacy fallback or raw endpoint if needed (usually handled in jobs.routes.ts now)
+    fastify.post('/api/v1/jobs/raw', async (request, reply) => {
         const { jobName, data } = request.body;
         await myQueue.add(jobName, data);
         return reply.status(202).send({ success: true, message: 'Job added to queue' });
     });
+
+    // Initialize Socket.IO
+    const io = new SocketIOServer(fastify.server, {
+        cors: {
+            origin: config.frontendUrl,
+            methods: ["GET", "POST"]
+        }
+    });
+
+    const pubClient = createClient({ url: config.redisUrl });
+    const subClient = pubClient.duplicate();
+
+    // Workaround for top-level await issue in server.js
+    pubClient.connect().catch(err => logger.error("Redis PubClient connect error", err));
+    subClient.connect().catch(err => logger.error("Redis SubClient connect error", err));
+
+    io.adapter(createAdapter(pubClient, subClient));
+
+    // Common Socket Authentication Middleware
+    const socketAuthMiddleware = (socket, next) => {
+        const token = socket.handshake.auth.token;
+        if (!token) {
+            return next(new Error("Authentication error: Token missing"));
+        }
+        try {
+            const decoded = fastify.jwt.verify(token);
+            socket.data.user = decoded;
+            next();
+        } catch (err) {
+            next(new Error("Authentication error: Invalid token"));
+        }
+    };
+
+    io.use(socketAuthMiddleware);
+
+    // Setup Namespaces
+    const namespaces = ['/dashboard', '/devices', '/workflow', '/notification', '/system', '/events'];
+    
+    namespaces.forEach(ns => {
+        io.of(ns).use(socketAuthMiddleware).on("connection", (socket) => {
+            logger.info(`Socket connected to ${ns}: ${socket.id} for user: ${socket.data.user?.id}`);
+            
+            // Auto-join user-specific room
+            if (socket.data.user?.id) {
+                socket.join(`user:${socket.data.user.id}`);
+            }
+
+            // Client can explicitly subscribe to rooms (e.g. region, pop, olt, customer)
+            socket.on('subscribe', (room) => {
+                // ponytail: missing explicit authz per-room, add when strict partitioning is needed
+                socket.join(room);
+                logger.info(`Socket ${socket.id} joined room: ${room}`);
+            });
+
+            socket.on('unsubscribe', (room) => {
+                socket.leave(room);
+                logger.info(`Socket ${socket.id} left room: ${room}`);
+            });
+
+            socket.on("disconnect", () => {
+                logger.info(`Socket disconnected from ${ns}: ${socket.id}`);
+            });
+        });
+    });
+
+    // Event Bus Integration: Listen to Redis channels and broadcast via Socket.IO
+    const eventBusSubscriber = pubClient.duplicate();
+    eventBusSubscriber.connect().then(() => {
+        const channels = ['dashboard', 'device', 'events', 'tasks', 'notification', 'system'];
+        channels.forEach(channel => {
+            eventBusSubscriber.subscribe(channel, (message) => {
+                try {
+                    const eventData = JSON.parse(message);
+                    // Expected envelope: { event: "onu:los", namespace: "/events", room: "olt:1", payload: {} }
+                    const ns = eventData.namespace || `/${channel === 'tasks' ? 'workflow' : channel}`;
+                    const target = eventData.room ? io.of(ns).to(eventData.room) : io.of(ns);
+                    target.emit(eventData.event, eventData);
+                } catch (err) {
+                    logger.error(`Error processing event from Redis channel ${channel}`, err);
+                }
+            });
+        });
+    }).catch(err => logger.error("Redis EventBus connect error", err));
+
+    io.on("connection", (socket) => {
+        logger.info(`Socket connected: ${socket.id} for user: ${socket.data.user?.id}`);
+
+        socket.on("disconnect", () => {
+            logger.info(`Socket disconnected: ${socket.id}`);
+        });
+    });
+
     return fastify;
 };
