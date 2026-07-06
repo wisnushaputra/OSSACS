@@ -15,6 +15,20 @@
       "when": 1783196006113,
       "tag": "0001_blue_zombie",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783297136620,
+      "tag": "0002_robust_risque",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1783298823431,
+      "tag": "0003_curious_beast",
+      "breakpoints": true
     }
   ]
 }

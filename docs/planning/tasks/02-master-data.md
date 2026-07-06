@@ -2,7 +2,7 @@
 
 **Phase:** Core Data
 
-**Status:** IN PROGRESS
+**Status:** COMPLETED
 
 **Priority:** High
 
@@ -63,19 +63,19 @@ Acceptance Criteria
 
 ## Task 1.2
 
-- [ ] Customer Repository
+- [x] Customer Repository
 
 ---
 
 ## Task 1.3
 
-- [ ] Customer Service
+- [x] Customer Service
 
 ---
 
 ## Task 1.4
 
-- [ ] Customer CRUD API
+- [x] Customer CRUD API
 
 Endpoints
 
@@ -91,7 +91,7 @@ DELETE /api/v1/customers/:id
 
 ## Task 1.5
 
-- [ ] Customer Search
+- [x] Customer Search
 
 Acceptance Criteria
 
@@ -106,13 +106,13 @@ Search berdasarkan:
 
 ## Task 1.6
 
-- [ ] Pagination
+- [x] Pagination
 
 ---
 
 ## Task 1.7
 
-- [ ] Customer Detail Page
+- [x] Customer Detail Page
 
 ---
 
@@ -140,13 +140,13 @@ Acceptance Criteria
 
 ## Task 2.2
 
-- [ ] OLT CRUD API
+- [x] OLT CRUD API
 
 ---
 
 ## Task 2.3
 
-- [ ] OLT Connection Test
+- [x] OLT Connection Test
 
 Acceptance Criteria
 
@@ -156,7 +156,7 @@ Pengguna dapat menguji koneksi ke OLT sebelum disimpan.
 
 ## Task 2.4
 
-- [ ] Encrypt Credential
+- [x] Encrypt Credential
 
 Acceptance Criteria
 
@@ -166,7 +166,7 @@ Password OLT tidak disimpan dalam bentuk plain te t.
 
 ## Task 2.5
 
-- [ ] OLT Detail Page
+- [x] OLT Detail Page
 
 ---
 
@@ -174,13 +174,13 @@ Password OLT tidak disimpan dalam bentuk plain te t.
 
 ## Task 3.1
 
-- [ ] PON Port Schema
+- [x] PON Port Schema
 
 ---
 
 ## Task 3.2
 
-- [ ] Generate Default PON Port
+- [x] Generate Default PON Port
 
 Acceptance Criteria
 
@@ -190,13 +190,13 @@ Saat OLT dibuat, sistem dapat membuat daftar PON berdasarkan konfigurasi OLT (mi
 
 ## Task 3.3
 
-- [ ] PON Port API
+- [x] PON Port API
 
 ---
 
 ## Task 3.4
 
-- [ ] PON Port Utilization
+- [x] PON Port Utilization
 
 Acceptance Criteria
 
@@ -230,13 +230,13 @@ Acceptance Criteria
 
 ## Task 4.2
 
-- [ ] ONU CRUD API
+- [x] ONU CRUD API
 
 ---
 
 ## Task 4.3
 
-- [ ] ONU Search
+- [x] ONU Search
 
 Acceptance Criteria
 
@@ -252,13 +252,13 @@ Pencarian berdasarkan:
 
 ## Task 4.4
 
-- [ ] ONU Detail Page
+- [x] ONU Detail Page
 
 ---
 
 ## Task 4.5
 
-- [ ] ONU Status Badge
+- [x] ONU Status Badge
 
 Status
 
@@ -275,13 +275,13 @@ Status
 
 ## Task 5.1
 
-- [ ] Vendor Schema
+- [x] Vendor Schema
 
 ---
 
 ## Task 5.2
 
-- [ ] Vendor Seeder
+- [x] Vendor Seeder
 
 Acceptance Criteria
 
@@ -298,7 +298,7 @@ Vendor bawaan:
 
 ## Task 5.3
 
-- [ ] Vendor Management API
+- [x] Vendor Management API
 
 ---
 
@@ -306,31 +306,31 @@ Vendor bawaan:
 
 ## Task 6.1
 
-- [ ] Line Profile Schema
+- [x] Line Profile Schema
 
 ---
 
 ## Task 6.2
 
-- [ ] Service Profile Schema
+- [x] Service Profile Schema
 
 ---
 
 ## Task 6.3
 
-- [ ] DBA Profile Schema
+- [x] DBA Profile Schema
 
 ---
 
 ## Task 6.4
 
-- [ ] VLAN Profile Schema
+- [x] VLAN Profile Schema
 
 ---
 
 ## Task 6.5
 
-- [ ] CRUD Profile
+- [x] CRUD Profile
 
 Acceptance Criteria
 
@@ -342,31 +342,31 @@ Profile dapat dipilih saat workflow Register ONU.
 
 ## Task 7.1
 
-- [ ] Region Schema
+- [x] Region Schema
 
 ---
 
 ## Task 7.2
 
-- [ ] POP Schema
+- [x] POP Schema
 
 ---
 
 ## Task 7.3
 
-- [ ] Region CRUD
+- [x] Region CRUD
 
 ---
 
 ## Task 7.4
 
-- [ ] POP CRUD
+- [x] POP CRUD
 
 ---
 
 ## Task 7.5
 
-- [ ] Mapping OLT ke POP
+- [x] Mapping OLT ke POP
 
 ---
 
@@ -374,32 +374,32 @@ Profile dapat dipilih saat workflow Register ONU.
 
 ## Customer
 
-- [ ] Customer List
-- [ ] Customer Detail
-- [ ] Customer Form
+- [x] Customer List
+- [x] Customer Detail
+- [x] Customer Form
 
 ---
 
 ## OLT
 
-- [ ] OLT List
-- [ ] OLT Detail
-- [ ] OLT Form
+- [x] OLT List
+- [x] OLT Detail
+- [x] OLT Form
 
 ---
 
 ## ONU
 
-- [ ] ONU List
-- [ ] ONU Detail
-- [ ] ONU Form
+- [x] ONU List
+- [x] ONU Detail
+- [x] ONU Form
 
 ---
 
 ## Profile
 
-- [ ] Profile List
-- [ ] Profile Form
+- [x] Profile List
+- [x] Profile Form
 
 ---
 
@@ -407,25 +407,25 @@ Profile dapat dipilih saat workflow Register ONU.
 
 ## Task 9.1
 
-- [ ] Zod Validation
+- [x] Zod Validation
 
 ---
 
 ## Task 9.2
 
-- [ ] Duplicate Customer Validation
+- [x] Duplicate Customer Validation
 
 ---
 
 ## Task 9.3
 
-- [ ] Duplicate OLT Validation
+- [x] Duplicate OLT Validation
 
 ---
 
 ## Task 9.4
 
-- [ ] Duplicate ONU Validation
+- [x] Duplicate ONU Validation
 
 Acceptance Criteria
 
@@ -437,17 +437,17 @@ Serial Number ONU harus unik.
 
 Backend
 
-- [ ] Repository Test
-- [ ] Service Test
-- [ ] API Test
+- [x] Repository Test
+- [x] Service Test
+- [x] API Test
 
 ---
 
 Frontend
 
-- [ ] Customer Page Test
-- [ ] OLT Page Test
-- [ ] ONU Page Test
+- [x] Customer Page Test
+- [x] OLT Page Test
+- [x] ONU Page Test
 
 ---
 
@@ -471,14 +471,14 @@ Setelah fase ini selesai:
 
 Fase Master Data dianggap selesai apabila:
 
-- [ ] Seluruh tabel master telah dibuat.
-- [ ] Seluruh migration berhasil dijalankan.
-- [ ] Semua endpoint CRUD berfungsi.
-- [ ] Validasi data aktif.
-- [ ] Pencarian dan pagination tersedia.
-- [ ] Frontend dapat mengelola seluruh master data.
-- [ ] Unit test dan integration test lulus.
-- [ ] Dokumentasi diperbarui.
+- [x] Seluruh tabel master telah dibuat.
+- [x] Seluruh migration berhasil dijalankan.
+- [x] Semua endpoint CRUD berfungsi.
+- [x] Validasi data aktif.
+- [x] Pencarian dan pagination tersedia.
+- [x] Frontend dapat mengelola seluruh master data.
+- [x] Unit test dan integration test lulus.
+- [x] Dokumentasi diperbarui.
 
 ---
 

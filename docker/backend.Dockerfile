@@ -19,7 +19,7 @@ RUN npm run build
 FROM node:20-alpine
 WORKDIR /app
 COPY --from=base /app/backend/dist ./dist
-COPY --from=base /app/backend/node_modules ./node_modules
+COPY --from=base /app/node_modules ./node_modules
 COPY --from=base /app/backend/package*.json ./
 
 EXPOSE 3000

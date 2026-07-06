@@ -7,18 +7,24 @@ const refreshSchema = z.object({
     refreshToken: z.string().min(1, 'Refresh token is required'),
 });
 const loginResponseSchema = z.object({
-    accessToken: z.string(),
-    refreshToken: z.string(),
-    user: z.object({
-        id: z.string().uuid(),
-        username: z.string(),
-        fullname: z.string(),
-        roleId: z.string().uuid(),
+    success: z.boolean(),
+    data: z.object({
+        accessToken: z.string(),
+        refreshToken: z.string(),
+        user: z.object({
+            id: z.string().uuid(),
+            username: z.string(),
+            fullname: z.string(),
+            roleId: z.string().uuid(),
+        }),
     }),
 });
 const refreshResponseSchema = z.object({
-    accessToken: z.string(),
-    refreshToken: z.string(),
+    success: z.boolean(),
+    data: z.object({
+        accessToken: z.string(),
+        refreshToken: z.string(),
+    }),
 });
 const userMeResponseSchema = z.object({
     id: z.string().uuid(),

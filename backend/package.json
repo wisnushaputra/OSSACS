@@ -10,7 +10,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx src/db/seed.ts",
     "db:studio": "drizzle-kit studio",
-    "test": "tsx --test src/**/*.test.ts"
+    "test": "node --require dotenv/config --import tsx --test src/**/*.test.ts",
+    "worker": "tsx src/worker.ts"
   },
   "keywords": [],
   "author": "",

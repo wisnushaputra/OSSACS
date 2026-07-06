@@ -34,6 +34,11 @@ export class InternalServerError extends AppError {
         super(message, 500, 'INTERNAL_SERVER_ERROR');
     }
 }
+export class ConflictError extends AppError {
+    constructor(message = 'Conflict occurred') {
+        super(message, 409, 'CONFLICT');
+    }
+}
 export class OLTConnectionError extends AppError {
     constructor(message = 'Failed to connect to OLT') {
         super(message, 502, 'OLT_CONNECTION_FAILED');

@@ -41,6 +41,12 @@ export class InternalServerError extends AppError {
   }
 }
 
+export class ConflictError extends AppError {
+  constructor(message: string = 'Conflict occurred') {
+    super(message, 409, 'CONFLICT');
+  }
+}
+
 export class OLTConnectionError extends AppError {
   constructor(message: string = 'Failed to connect to OLT') {
     super(message, 502, 'OLT_CONNECTION_FAILED');

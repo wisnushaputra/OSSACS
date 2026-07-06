@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { users, roles, permissions, rolePermissions, refreshTokens, auditLogs } from './schema';
+import { users, roles, permissions, rolePermissions, refreshTokens, auditLogs, olts, ponPorts, onus, pops } from './schema';
 // User relations
 export const usersRelations = relations(users, ({ one, many }) => ({
     role: one(roles, {
@@ -42,4 +42,25 @@ export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
         fields: [auditLogs.userId],
         references: [users.id],
     }),
+}));
+export const oltsRelations = relations(olts, ({ one, many }) => ({
+    pop: one(pops, {
+        fields: [olts.popId],
+        references: [pops.id],
+    }),
+    ponPorts: many(ponPorts),
+    onus: many(onus),
+}));
+export const ponPortsRelations = relations(ponPorts, ({ one }) => ({
+    olt: one(olts, {
+        fields: [ponPorts.oltId],
+        references: [olts.id],
+    }),
+}));
+export const onusRelations = relations(onus, ({ one }) => ({
+    olt: one(olts, {
+        fields: [onus.oltId],
+        references: [olts.id],
+    }),
+    // We can also add ponPort relation later if onus schema gets a ponPortId
 }));

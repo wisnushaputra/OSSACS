@@ -44,7 +44,7 @@ Modul yang dikerjakan:
 
 ## Task 1.1
 
-- [ ] Dashboard Summary Endpoint
+- - [x] Dashboard Summary Endpoint
 
 ```http
 GET /api/v1/dashboard/summary
@@ -68,7 +68,7 @@ Mengembalikan:
 
 ## Task 1.2
 
-- [ ] Cache Dashboard Summary (Redis)
+- - [x] Cache Dashboard Summary (Redis)
 
 Acceptance Criteria
 
@@ -80,25 +80,25 @@ TTL dapat dikonfigurasi.
 
 ## Task 2.1
 
-- [ ] Customer Status Summary
+- [x] Customer Status Summary
 
 ---
 
 ## Task 2.2
 
-- [ ] Customer by Region
+- [x] Customer by Region
 
 ---
 
 ## Task 2.3
 
-- [ ] Customer by POP
+- [x] Customer by POP
 
 ---
 
 ## Task 2.4
 
-- [ ] New Customer Trend
+- [x] New Customer Trend
 
 Acceptance Criteria
 
@@ -110,37 +110,37 @@ Grafik harian, mingguan, dan bulanan.
 
 ## Task 3.1
 
-- [ ] Online vs Offline
+- - [x] Online vs Offline
 
 ---
 
 ## Task 3.2
 
-- [ ] LOS Statistics
+- - [x] LOS Statistics
 
 ---
 
 ## Task 3.3
 
-- [ ] Dying Gasp Statistics
+- - [x] Dying Gasp Statistics
 
 ---
 
 ## Task 3.4
 
-- [ ] ONU by Vendor
+- - [x] ONU by Vendor
 
 ---
 
 ## Task 3.5
 
-- [ ] ONU by Model
+- - [x] ONU by Model
 
 ---
 
 ## Task 3.6
 
-- [ ] Optical Power Distribution
+- - [x] Optical Power Distribution
 
 Acceptance Criteria
 
@@ -186,25 +186,25 @@ Persentase penggunaan slot ONU pada setiap OLT.
 
 ## Task 5.1
 
-- [ ] Active Alarm Counter
+- [x] Active Alarm Counter
 
 ---
 
 ## Task 5.2
 
-- [ ] Alarm by Severity
+- [x] Alarm by Severity
 
 ---
 
 ## Task 5.3
 
-- [ ] Alarm Trend
+- [x] Alarm Trend
 
 ---
 
 ## Task 5.4
 
-- [ ] Latest Alarm Table
+- [x] Latest Alarm Table
 
 Acceptance Criteria
 
@@ -223,25 +223,25 @@ Menampilkan:
 
 ## Task 6.1
 
-- [ ] Running Workflow
+- [x] Running Workflow
 
 ---
 
 ## Task 6.2
 
-- [ ] Workflow Success Rate
+- [x] Workflow Success Rate
 
 ---
 
 ## Task 6.3
 
-- [ ] Workflow Failure Rate
+- [x] Workflow Failure Rate
 
 ---
 
 ## Task 6.4
 
-- [ ] Latest Workflow
+- [x] Latest Workflow
 
 ---
 
@@ -249,31 +249,31 @@ Menampilkan:
 
 ## Task 7.1
 
-- [ ] API Response Time
+- [x] API Response Time
 
 ---
 
 ## Task 7.2
 
-- [ ] Queue Length
+- [x] Queue Length
 
 ---
 
 ## Task 7.3
 
-- [ ] Worker Status
+- [x] Worker Status
 
 ---
 
 ## Task 7.4
 
-- [ ] Redis Status
+- [x] Redis Status
 
 ---
 
 ## Task 7.5
 
-- [ ] PostgreSQL Status
+- [x] PostgreSQL Status
 
 ---
 
@@ -281,13 +281,13 @@ Menampilkan:
 
 ## Task 8.1
 
-- [ ] Dashboard Layout
+- [x] Dashboard Layout
 
 ---
 
 ## Task 8.2
 
-- [ ] Summary Cards
+- [x] Summary Cards
 
 Cards:
 
@@ -303,7 +303,7 @@ Cards:
 
 ## Task 8.3
 
-- [ ] Charts Section
+- [x] Charts Section
 
 Charts:
 
@@ -317,13 +317,13 @@ Charts:
 
 ## Task 8.4
 
-- [ ] Latest Activity Panel
+- [x] Latest Activity Panel
 
 ---
 
 ## Task 8.5
 
-- [ ] Quick Action Panel
+- [x] Quick Action Panel
 
 Shortcut:
 
@@ -339,31 +339,31 @@ Shortcut:
 
 ## Task 9.1
 
-- [ ] Filter by Region
+- [x] Filter by Region
 
 ---
 
 ## Task 9.2
 
-- [ ] Filter by POP
+- [x] Filter by POP
 
 ---
 
 ## Task 9.3
 
-- [ ] Filter by Vendor
+- [x] Filter by Vendor
 
 ---
 
 ## Task 9.4
 
-- [ ] Filter by OLT
+- [x] Filter by OLT
 
 ---
 
 ## Task 9.5
 
-- [ ] Date Range Filter
+- [x] Date Range Filter
 
 ---
 
@@ -371,7 +371,7 @@ Shortcut:
 
 ## Task 10.1
 
-- [ ] Redis Cache
+- [x] Redis Cache
 
 ---
 
@@ -397,7 +397,7 @@ Shortcut:
 
 ## Task 11.1
 
-- [ ] Dashboard Read Permission
+- [x] Dashboard Read Permission
 
 ---
 

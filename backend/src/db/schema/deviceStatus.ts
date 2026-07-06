@@ -1,5 +1,14 @@
-import { pgTable, uuid, varchar, numeric, bigint, timestamp, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, numeric, bigint, timestamp, index, pgEnum } from 'drizzle-orm/pg-core';
 import { onus } from './onus';
+
+export const deviceStatusEnum = pgEnum('device_status_enum', [
+  'ONLINE',
+  'OFFLINE',
+  'LOS',
+  'DYING_GASP',
+  'DISABLED',
+  'UNKNOWN',
+]);
 
 export const deviceStatus = pgTable(
   'device_status',
@@ -8,7 +17,7 @@ export const deviceStatus = pgTable(
     onuId: uuid('onu_id')
       .references(() => onus.id)
       .notNull(),
-    status: varchar('status', { length: 50 }).notNull(), // ONLINE, OFFLINE, LOS, DYING_GASP, UNKNOWN
+    status: deviceStatusEnum('status').notNull(),
     rxPower: numeric('rx_power'),
     txPower: numeric('tx_power'),
     uptime: bigint('uptime', { mode: 'number' }),
